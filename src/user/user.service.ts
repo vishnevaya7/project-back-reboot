@@ -2,8 +2,8 @@ import {ConflictException, Injectable, InternalServerErrorException, NotFoundExc
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {User, UserRole} from "./entities/user.entity";
-import {CreateUserDto} from "./dto/create_user.dto";
 import * as bcrypt from 'bcryptjs'
+import {CreateUserDto} from "./dto/create-user.dto";
 
 @Injectable()
 export class UserService {
@@ -38,7 +38,7 @@ export class UserService {
             if (error instanceof ConflictException) {
                 throw error;
             }
-            throw new InternalServerErrorException('Такого пользователя не существует');
+            throw new InternalServerErrorException('Такого пользователя не существует ' + error);
         }
     }
 
