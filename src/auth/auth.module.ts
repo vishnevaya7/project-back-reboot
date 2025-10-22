@@ -5,13 +5,14 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { UserModule } from '../user/user.module';
+import { JWT_SECRET } from '../config/constants';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key', // В продакшене использовать переменную окружения
+      secret: JWT_SECRET, // В продакшене использовать переменную окружения
       signOptions: { expiresIn: '24h' },
     }),
   ],

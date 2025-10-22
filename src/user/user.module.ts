@@ -6,6 +6,6 @@ import { UserService } from './user.service';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   providers: [UserService],
-  exports: [UserService], // Экспортируем для использования в других модулях
+  exports: [UserService],
 })
 export class UserModule {}
