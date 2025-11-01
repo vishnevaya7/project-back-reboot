@@ -11,12 +11,12 @@ import {OrderModule} from "./order/order.module";
     imports: [
         TypeOrmModule.forRoot({
             type: 'postgres',
-            host: 'localhost',
-            port: 5432,
-            username: 'postgres',
-            schema: 'store',
-            password: '0112',
-            database: 'dev',
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '5432'),
+            username: process.env.DB_USERNAME || 'postgres',
+            schema: process.env.DB_SCHEMA || 'store',
+            password: process.env.DB_PASSWORD || '0112',
+            database: process.env.DB_DATABASE || 'dev',
             autoLoadEntities: true,
             synchronize: false,
             logging: ['query', 'error', 'schema', 'warn', 'info', 'log']

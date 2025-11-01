@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Создание схемы store -->
+    <changeSet id="1" author="developer">
+        <sql>CREATE SCHEMA IF NOT EXISTS store;</sql>
+    </changeSet>
+
+    <!-- Включаем миграции для таблиц -->
+    <include file="changelog/migrations/001-create-users-table.xml"/>
+    <include file="changelog/migrations/002-create-products-table.xml"/>
+    <include file="changelog/migrations/003-create-orders-table.xml"/>
+    <include file="changelog/migrations/004-create-order-items-table.xml"/>
+
+</databaseChangeLog>

@@ -14,13 +14,13 @@ export class OrderService {
     async getOrderById(id: number): Promise<Order | null> {
         return this.orderRepository.findOne({
             where: { id },
-            relations: ['user']
+            relations: ['user', 'productOrders.product']
         });
     }
 
     async getOrders(): Promise<Order[]> {
         return this.orderRepository.find({
-            relations: ['user']
+            relations: ['user', 'productOrders.product']
         });
     }
 }

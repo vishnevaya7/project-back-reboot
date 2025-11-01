@@ -1,5 +1,16 @@
-import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, OneToMany, JoinColumn} from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    ManyToOne,
+    CreateDateColumn,
+    OneToMany,
+    JoinColumn,
+    ManyToMany
+} from 'typeorm';
 import {User} from "../../user/entities/user.entity";
+import {Product} from "../../product/entities/product.entity";
+import {ProductOrder} from "./product-order.entity";
 
 
 export enum OrderStatus {
@@ -22,6 +33,9 @@ export class Order {
     @PrimaryGeneratedColumn()
     id: number;
 
+// table product_order(productId, orderId, count)
+    @OneToMany(() => ProductOrder, productOrder => productOrder.order)
+    productOrders: ProductOrder[];
     // Связь с User
     @ManyToOne(() => User, user => user.orders)
     @JoinColumn({ name: 'user_id' })
