@@ -41,17 +41,18 @@ services:
     profiles:
       - migration
   # pgAdmin для управления БД
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+  pgweb:
+    image: sosedoff/pgweb:latest
+    container_name: pgweb
     ports:
-      - "8080:80"
+      - "8081:8081"
+    environment:
+      - PGWEB_DATABASE_URL=postgres://postgres:postgres@postgres:5432/dev?sslmode=disable
     networks:
       - app-network
     restart: unless-stopped
+    depends_on:
+      - postgres
 
   # NestJS приложение
   app:

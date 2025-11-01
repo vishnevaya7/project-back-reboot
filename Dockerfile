@@ -1,5 +1,5 @@
-# Используем Node.js 18 Alpine для меньшего размера образа
-FROM node:18-alpine AS builder
+# Используем Node.js 22 Alpine для меньшего размера образа
+FROM node:22-alpine AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Продакшн образ
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 # Создаем пользователя для безопасности
 RUN addgroup -g 1001 -S nodejs
@@ -26,11 +26,11 @@ RUN adduser -S nestjs -u 1001
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем package.json для установки только продакшн зависимостей
+# Копируем package.json для установки зависимостей
 COPY package*.json ./
 
-# Устанавливаем только продакшн зависимости
-RUN npm ci --only=production && npm cache clean --force
+# Устанавливаем зависимости (включая @nestjs/swagger для runtime)
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Копируем собранное приложение из builder этапа
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
