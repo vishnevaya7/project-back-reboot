@@ -24,13 +24,13 @@ export class UserService {
                 throw new ConflictException('Пользователь с таким email уже существует');
             }
             const saltRounds = 10;
-            const password_hash = await bcrypt.hash(password, saltRounds);
+            const passwordHash = await bcrypt.hash(password, saltRounds);
 
             const user = this.userRepository.create({
                 username,
                 email,
-                password_hash,
-                is_active: true,
+                passwordHash,
+                isActive: true,
             });
 
             return await this.userRepository.save(user);
@@ -51,7 +51,7 @@ export class UserService {
     }
 
     async validatePassword(user: User, password: string): Promise<boolean> {
-        return await bcrypt.compare(password, user.password_hash);
+        return await bcrypt.compare(password, user.passwordHash);
     }
 
 }

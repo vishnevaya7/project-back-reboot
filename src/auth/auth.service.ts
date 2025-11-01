@@ -23,11 +23,11 @@ export class AuthService {
       throw new UnauthorizedException('Неверные учетные данные');
     }
 
-    if (!user.is_active) {
+    if (!user.isActive) {
       throw new UnauthorizedException('Аккаунт деактивирован');
     }
 
-    const { password_hash, ...result } = user;
+    const { passwordHash, ...result } = user;
     return result;
   }
 

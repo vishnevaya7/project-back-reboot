@@ -5,6 +5,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {UserModule} from './user/user.module';
 import {AuthModule} from './auth/auth.module';
 import {ProductModule} from "./product/product.module";
+import {OrderModule} from "./order/order.module";
 
 @Module({
     imports: [
@@ -18,10 +19,12 @@ import {ProductModule} from "./product/product.module";
             database: 'dev',
             autoLoadEntities: true,
             synchronize: false,
+            logging: ['query', 'error', 'schema', 'warn', 'info', 'log']
         }),
         UserModule,
         AuthModule,
-        ProductModule
+        ProductModule,
+        OrderModule,
     ]
 })
 export class AppModule {
