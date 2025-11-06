@@ -1,7 +1,14 @@
-import { Controller, Get, Param } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
+import { Controller, Get, Post, Body, Param, UseGuards, Request } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
 import { Order } from "./entities/order.entity";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { 
+  ApiCreateOrder, 
+  ApiGetOrderById, 
+  ApiGetAllOrders 
+} from '../swagger';
 
 @ApiTags('Заказы')
 @Controller('order')
@@ -9,49 +16,21 @@ export class OrderController {
     constructor(private readonly orderService: OrderService) {
     }
 
+    @Post()
+    @UseGuards(JwtAuthGuard)
+    @ApiCreateOrder()
+    async create(@Body() createOrderDto: CreateOrderDto, @Request() req): Promise<Order> {
+        return this.orderService.createOrder(createOrderDto, req.user.id);
+    }
+
     @Get(':id')
-    @ApiOperation({ summary: 'Получить заказ по ID' })
-    @ApiParam({ name: 'id', description: 'ID заказа', type: 'number', example: 1 })
-    @ApiResponse({
-        status: 200,
-        description: 'Заказ найден',
-        schema: {
-            type: 'object',
-            properties: {
-                id: { type: 'number', example: 1 },
-                userId: { type: 'number', example: 1 },
-                totalAmount: { type: 'number', example: 199998 },
-                status: { type: 'string', example: 'pending' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-            }
-        }
-    })
-    @ApiResponse({ status: 404, description: 'Заказ не найден' })
+    @ApiGetOrderById()
     async findOne(@Param('id') id: number): Promise<Order | null> {
         return this.orderService.getOrderById(id);
     }
 
     @Get()
-    @ApiOperation({ summary: 'Получить список всех заказов' })
-    @ApiResponse({
-        status: 200,
-        description: 'Список заказов',
-        schema: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    id: { type: 'number', example: 1 },
-                    userId: { type: 'number', example: 1 },
-                    totalAmount: { type: 'number', example: 199998 },
-                    status: { type: 'string', example: 'pending' },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    updatedAt: { type: 'string', format: 'date-time' }
-                }
-            }
-        }
-    })
+    @ApiGetAllOrders()
     async findAll(): Promise<Order[]> {
         return this.orderService.getOrders();
     }

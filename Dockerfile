@@ -26,6 +26,9 @@ RUN adduser -S nestjs -u 1001
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Создаем директорию для загрузок и устанавливаем права
+RUN mkdir -p /app/uploads/products && chown -R nestjs:nodejs /app/uploads
+
 # Копируем package.json для установки зависимостей
 COPY package*.json ./
 

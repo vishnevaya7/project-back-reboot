@@ -71,6 +71,8 @@ services:
       - JWT_SECRET=your-jwt-secret-key
     ports:
       - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads  # Том для хранения загруженных изображений
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,6 +82,7 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:  # Новый том для изображений
 
 networks:
   app-network:

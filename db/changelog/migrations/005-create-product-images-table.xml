@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="005-create-product-images-table" author="developer">
+        <comment>Создание таблицы для хранения изображений товаров</comment>
+
+        <createTable tableName="product_image" schemaName="store">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="productId" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imageUrl" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="altText" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="sortOrder" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="isMain" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Внешний ключ на таблицу product -->
+        <addForeignKeyConstraint
+                baseTableSchemaName="store"
+                baseTableName="product_image"
+                baseColumnNames="productId"
+                referencedTableSchemaName="store"
+                referencedTableName="product"
+                referencedColumnNames="id"
+                constraintName="fk_product_image_product"
+                onDelete="CASCADE"/>
+
+        <!-- Индекс для быстрого поиска изображений по товару -->
+        <createIndex indexName="idx_product_image_product_id" tableName="product_image" schemaName="store">
+            <column name="productId"/>
+        </createIndex>
+
+        <!-- Индекс для сортировки изображений -->
+        <createIndex indexName="idx_product_image_sort_order" tableName="product_image" schemaName="store">
+            <column name="productId"/>
+            <column name="sortOrder"/>
+        </createIndex>
+
+        <!-- Индекс для поиска главного изображения -->
+        <createIndex indexName="idx_product_image_is_main" tableName="product_image" schemaName="store">
+            <column name="productId"/>
+            <column name="isMain"/>
+        </createIndex>
+
+    </changeSet>
+</databaseChangeLog>

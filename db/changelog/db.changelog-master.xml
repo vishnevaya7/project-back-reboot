@@ -15,5 +15,6 @@
     <include file="changelog/migrations/002-create-products-table.xml"/>
     <include file="changelog/migrations/003-create-orders-table.xml"/>
     <include file="changelog/migrations/004-create-order-items-table.xml"/>
+    <include file="changelog/migrations/005-create-product-images-table.xml"/>
 
 </databaseChangeLog>
