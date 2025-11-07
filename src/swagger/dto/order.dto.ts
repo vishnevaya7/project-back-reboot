@@ -63,8 +63,35 @@ export class CreateOrderRequest {
   comment?: string;
 }
 
-// Response DTOs
-export class OrderItemResponse {
+// Response DTOs для списка заказов (краткая информация)
+export class OrderListItemResponse {
+  @ApiProperty({ example: 1, description: 'ID заказа' })
+  id: number;
+
+  @ApiProperty({ example: 'ORD-20241107-001', description: 'Номер заказа' })
+  orderNumber: string;
+
+  @ApiProperty({ example: 199998, description: 'Общая сумма заказа' })
+  totalAmount: number;
+
+  @ApiProperty({ example: 'PENDING', description: 'Статус заказа' })
+  status: string;
+
+  @ApiProperty({ example: 'PENDING', description: 'Статус оплаты' })
+  paymentStatus: string;
+
+  @ApiProperty({ example: '2024-11-07T12:00:00.000Z', description: 'Дата создания заказа' })
+  createdAt: string;
+
+  @ApiProperty({ 
+    example: 3, 
+    description: 'Количество товаров в заказе' 
+  })
+  itemsCount: number;
+}
+
+// Response DTO для детальной информации о товаре в заказе
+export class OrderItemDetailResponse {
   @ApiProperty({ example: 1, description: 'ID товара' })
   productId: number;
 
@@ -79,9 +106,17 @@ export class OrderItemResponse {
 
   @ApiProperty({ example: 199998, description: 'Общая стоимость позиции' })
   totalPrice: number;
+
+  @ApiProperty({ 
+    example: '/uploads/products/main-image.jpg',
+    description: 'URL главного изображения товара',
+    required: false
+  })
+  productImageUrl?: string;
 }
 
-export class OrderResponse {
+// Response DTO для детальной информации о заказе
+export class OrderDetailResponse {
   @ApiProperty({ example: 1, description: 'ID заказа' })
   id: number;
 
@@ -91,11 +126,17 @@ export class OrderResponse {
   @ApiProperty({ example: 1, description: 'ID пользователя' })
   userId: number;
 
+  @ApiProperty({ 
+    example: 'john_doe', 
+    description: 'Username пользователя, сделавшего заказ' 
+  })
+  username: string;
+
   @ApiProperty({
-    type: [OrderItemResponse],
+    type: [OrderItemDetailResponse],
     description: 'Товары в заказе'
   })
-  items: OrderItemResponse[];
+  items: OrderItemDetailResponse[];
 
   @ApiProperty({ example: 199998, description: 'Общая сумма заказа' })
   totalAmount: number;
@@ -106,7 +147,11 @@ export class OrderResponse {
   @ApiProperty({ example: 'card', description: 'Способ оплаты' })
   paymentMethod: string;
 
-  @ApiProperty({ example: 'Доставить до 18:00', description: 'Комментарий к заказу' })
+  @ApiProperty({ 
+    example: 'Доставить до 18:00', 
+    description: 'Комментарий к заказу',
+    required: false
+  })
   comment?: string;
 
   @ApiProperty({ example: 'PENDING', description: 'Статус заказа' })
@@ -122,32 +167,18 @@ export class OrderResponse {
   updatedAt: string;
 }
 
-export class OrderListItem {
-  @ApiProperty({ example: 1, description: 'ID заказа' })
-  id: number;
-
-  @ApiProperty({ example: 'ORD-20241107-001', description: 'Номер заказа' })
-  orderNumber: string;
-
-  @ApiProperty({ example: 199998, description: 'Общая сумма заказа' })
-  totalAmount: number;
-
-  @ApiProperty({ example: 'PENDING', description: 'Статус заказа' })
-  status: string;
-
-  @ApiProperty({ example: 'PENDING', description: 'Статус оплаты' })
-  paymentStatus: string;
-
-  @ApiProperty({ example: '2024-11-07T12:00:00.000Z', description: 'Дата создания заказа' })
-  createdAt: string;
-}
-
 export class OrderListResponse {
   @ApiProperty({
-    type: [OrderListItem],
+    type: [OrderListItemResponse],
     description: 'Список заказов'
   })
-  orders: OrderListItem[];
+  orders: OrderListItemResponse[];
+
+  @ApiProperty({
+    example: 25,
+    description: 'Общее количество заказов'
+  })
+  total: number;
 }
 
 export class CreateOrderResponse {
@@ -158,10 +189,10 @@ export class CreateOrderResponse {
   message: string;
 
   @ApiProperty({
-    type: OrderResponse,
+    type: OrderDetailResponse,
     description: 'Созданный заказ'
   })
-  order: OrderResponse;
+  order: OrderDetailResponse;
 }
 
 export class OrderNotFoundResponse {
@@ -177,3 +208,13 @@ export class OrderNotFoundResponse {
   })
   statusCode: number;
 }
+
+// Устаревшие DTO (для обратной совместимости, можно удалить после обновления контроллеров)
+/** @deprecated Используйте OrderItemDetailResponse */
+export class OrderItemResponse extends OrderItemDetailResponse {}
+
+/** @deprecated Используйте OrderDetailResponse */
+export class OrderResponse extends OrderDetailResponse {}
+
+/** @deprecated Используйте OrderListItemResponse */
+export class OrderListItem extends OrderListItemResponse {}

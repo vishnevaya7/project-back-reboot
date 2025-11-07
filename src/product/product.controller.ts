@@ -1,39 +1,39 @@
-import { ProductService } from "./product.service";
 import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { 
     CreateProductRequest, 
     UpdateProductRequest, 
-    ProductResponse,
+    ProductDetailResponse,
+    ProductListItemResponse,
     DeleteProductResponse 
 } from "../swagger/dto";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {RolesGuard} from "../auth/guards/roles.guard";
 import {Roles} from "../auth/decorators/roles.decorator";
 import {UserRole} from "../user/entities/user.entity";
+import {ProductService} from "./product.service";
 import {
+    ApiCreateProduct,
+    ApiDeleteProduct,
     ApiGetProduct,
     ApiGetProducts,
-    ApiCreateProduct,
-    ApiUpdateProduct,
-    ApiDeleteProduct
-} from '../swagger';
+    ApiUpdateProduct
+} from "../swagger/decorators/product.decorators";
 
-@ApiTags('Товары')
+@ApiTags('products')
 @Controller('product')
 export class ProductController {
-    constructor(private readonly productService: ProductService) {
-    }
+    constructor(private readonly productService: ProductService) {}
 
     @Get(':id')
     @ApiGetProduct()
-    async findOne(@Param('id') id: number): Promise<ProductResponse | null> {
+    async findOne(@Param('id') id: number): Promise<ProductDetailResponse | null> {
         return this.productService.getProductById(id);
     }
 
     @Get()
     @ApiGetProducts()
-    async findAll(): Promise<ProductResponse[]> {
+    async findAll(): Promise<ProductListItemResponse[]> {
         return this.productService.getProducts();
     }
 
@@ -41,7 +41,7 @@ export class ProductController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     @ApiCreateProduct()
-    async createProduct(@Body() createProductRequest: CreateProductRequest): Promise<ProductResponse> {
+    async createProduct(@Body() createProductRequest: CreateProductRequest): Promise<ProductDetailResponse> {
         return this.productService.createProduct(createProductRequest);
     }
 
@@ -52,7 +52,7 @@ export class ProductController {
     async updateProduct(
         @Param('id') id: number,
         @Body() updateProductRequest: UpdateProductRequest
-    ): Promise<ProductResponse> {
+    ): Promise<ProductDetailResponse> {
         return this.productService.updateProduct(id, updateProductRequest);
     }
 

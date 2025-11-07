@@ -5,7 +5,8 @@ import {Repository} from "typeorm";
 import {
     CreateProductRequest,
     UpdateProductRequest,
-    ProductResponse,
+    ProductDetailResponse,
+    ProductListItemResponse,
     DeleteProductResponse
 } from "../swagger/dto";
 
@@ -16,34 +17,38 @@ export class ProductService {
         private readonly productRepository: Repository<Product>,
     ) {}
 
-    async getProductById(id: number): Promise<ProductResponse | null> {
+    async getProductById(id: number): Promise<ProductDetailResponse | null> {
         const product = await this.productRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: ['images']
         });
 
         if (!product) {
             return null;
         }
 
-        return this.transformProductToResponse(product);
+        return this.transformProductToDetailResponse(product);
     }
 
-    async getProducts(): Promise<ProductResponse[]> {
+    async getProducts(): Promise<ProductListItemResponse[]> {
         const products = await this.productRepository.find({
             relations: ['images'],
         });
 
-        return products.map(product => this.transformProductToResponse(product));
+        return products.map(product => this.transformProductToListItemResponse(product));
     }
 
-    async createProduct(createProductRequest: CreateProductRequest): Promise<ProductResponse> {
+    async createProduct(createProductRequest: CreateProductRequest): Promise<ProductDetailResponse> {
         const product = this.productRepository.create(createProductRequest);
         const savedProduct = await this.productRepository.save(product);
-        return this.transformProductToResponse(savedProduct);
+        return this.transformProductToDetailResponse(savedProduct);
     }
 
-    async updateProduct(id: number, updateProductRequest: UpdateProductRequest): Promise<ProductResponse> {
-        const product = await this.productRepository.findOne({ where: { id } });
+    async updateProduct(id: number, updateProductRequest: UpdateProductRequest): Promise<ProductDetailResponse> {
+        const product = await this.productRepository.findOne({ 
+            where: { id },
+            relations: ['images']
+        });
         
         if (!product) {
             throw new NotFoundException(`Товар с ID ${id} не найден`);
@@ -53,7 +58,7 @@ export class ProductService {
         Object.assign(product, updateProductRequest);
         
         const updatedProduct = await this.productRepository.save(product);
-        return this.transformProductToResponse(updatedProduct);
+        return this.transformProductToDetailResponse(updatedProduct);
     }
 
     async deleteProduct(id: number): Promise<DeleteProductResponse> {
@@ -68,7 +73,7 @@ export class ProductService {
         return { message: `Товар "${product.name}" успешно удален` };
     }
 
-    private transformProductToResponse(product: Product): ProductResponse {
+    private transformProductToDetailResponse(product: Product): ProductDetailResponse {
         return {
             id: product.id,
             name: product.name,
@@ -76,7 +81,30 @@ export class ProductService {
             price: product.price,
             count: product.count,
             ...(product.createdAt && { createdAt: product.createdAt.toISOString() }),
-            ...(product.updatedAt && { updatedAt: product.updatedAt.toISOString() })
+            ...(product.updatedAt && { updatedAt: product.updatedAt.toISOString() }),
+            ...(product.images && { 
+                images: product.images.map(img => ({
+                    id: img.id,
+                    imageUrl: img.imageUrl,
+                    altText: img.altText || '',
+                    sortOrder: img.sortOrder,
+                    isMain: img.isMain
+                }))
+            })
+        };
+    }
+
+    private transformProductToListItemResponse(product: Product): ProductListItemResponse {
+        // Находим главное изображение
+        const mainImage = product.images?.find(img => img.isMain) || product.images?.[0];
+        
+        return {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            count: product.count,
+            ...(mainImage && { mainImageUrl: mainImage.imageUrl }),
+            ...(product.createdAt && { createdAt: product.createdAt.toISOString() })
         };
     }
 }

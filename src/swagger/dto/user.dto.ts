@@ -69,8 +69,26 @@ export class UpdateUserRequest {
   role?: string;
 }
 
-// Response DTOs
-export class UserResponse {
+// Response DTOs для списка пользователей (минимальная информация)
+export class UserListItemResponse {
+  @ApiProperty({ example: 1, description: 'ID пользователя' })
+  id: number;
+
+  @ApiProperty({ example: 'user@example.com', description: 'Email пользователя' })
+  email: string;
+
+  @ApiProperty({ example: 'john_doe', description: 'Username пользователя' })
+  username: string;
+
+  @ApiProperty({ example: 'user', description: 'Роль пользователя', enum: ['user', 'admin'] })
+  role: string;
+
+  @ApiProperty({ example: true, description: 'Активен ли пользователь' })
+  isActive: boolean;
+}
+
+// Response DTO для детальной информации о пользователе
+export class UserDetailResponse {
   @ApiProperty({ example: 1, description: 'ID пользователя' })
   id: number;
 
@@ -91,14 +109,34 @@ export class UserResponse {
 
   @ApiProperty({ example: '2024-11-07T12:00:00.000Z', description: 'Дата последнего обновления пользователя' })
   updatedAt: string;
+
+  @ApiProperty({ 
+    example: '2024-11-07T12:00:00.000Z', 
+    description: 'Дата последнего входа в систему',
+    required: false
+  })
+  lastLoginAt?: string;
+
+  @ApiProperty({
+    example: 5,
+    description: 'Количество заказов пользователя',
+    required: false
+  })
+  ordersCount?: number;
 }
 
 export class UserListResponse {
   @ApiProperty({
-    type: [UserResponse],
+    type: [UserListItemResponse],
     description: 'Список пользователей'
   })
-  users: UserResponse[];
+  users: UserListItemResponse[];
+
+  @ApiProperty({
+    example: 50,
+    description: 'Общее количество пользователей'
+  })
+  total: number;
 }
 
 export class CreateUserResponse {
@@ -109,10 +147,10 @@ export class CreateUserResponse {
   message: string;
 
   @ApiProperty({
-    type: UserResponse,
+    type: UserDetailResponse,
     description: 'Созданный пользователь'
   })
-  user: UserResponse;
+  user: UserDetailResponse;
 }
 
 export class UpdateUserResponse {
@@ -123,10 +161,10 @@ export class UpdateUserResponse {
   message: string;
 
   @ApiProperty({
-    type: UserResponse,
+    type: UserDetailResponse,
     description: 'Обновленный пользователь'
   })
-  user: UserResponse;
+  user: UserDetailResponse;
 }
 
 export class DeleteUserResponse {
