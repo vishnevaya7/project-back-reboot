@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="006-add-timestamps-to-products" author="developer">
+        <comment>Добавление полей created_at и updated_at в таблицу product</comment>
+
+        <!-- Добавляем поле created_at -->
+        <addColumn tableName="product" schemaName="store">
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <!-- Добавляем поле updated_at -->
+        <addColumn tableName="product" schemaName="store">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <!-- Создаем триггер для автоматического обновления updated_at -->
+        <sql>
+            CREATE OR REPLACE FUNCTION store.update_updated_at_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+            NEW.updated_at = CURRENT_TIMESTAMP;
+            RETURN NEW;
+            END
+            $$ LANGUAGE 'plpgsql';
+
+            CREATE TRIGGER update_product_updated_at
+            BEFORE UPDATE ON store.product
+            FOR EACH ROW
+            EXECUTE FUNCTION store.update_updated_at_column();
+        </sql>
+
+        <!-- Создание индекса для created_at -->
+        <createIndex indexName="idx_product_created_at" tableName="product" schemaName="store">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

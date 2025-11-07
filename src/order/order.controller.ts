@@ -1,8 +1,12 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Request } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
-import { Order } from "./entities/order.entity";
-import { CreateOrderDto } from "./dto/create-order.dto";
+import { 
+  CreateOrderRequest, 
+  CreateOrderResponse, 
+  OrderResponse, 
+  OrderListResponse 
+} from "../swagger/dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { 
   ApiCreateOrder, 
@@ -19,19 +23,19 @@ export class OrderController {
     @Post()
     @UseGuards(JwtAuthGuard)
     @ApiCreateOrder()
-    async create(@Body() createOrderDto: CreateOrderDto, @Request() req): Promise<Order> {
-        return this.orderService.createOrder(createOrderDto, req.user.id);
+    async create(@Body() createOrderRequest: CreateOrderRequest, @Request() req): Promise<CreateOrderResponse> {
+        return this.orderService.createOrder(createOrderRequest, req.user.id);
     }
 
     @Get(':id')
     @ApiGetOrderById()
-    async findOne(@Param('id') id: number): Promise<Order | null> {
+    async findOne(@Param('id') id: number): Promise<OrderResponse | null> {
         return this.orderService.getOrderById(id);
     }
 
     @Get()
     @ApiGetAllOrders()
-    async findAll(): Promise<Order[]> {
+    async findAll(): Promise<OrderListResponse> {
         return this.orderService.getOrders();
     }
 }

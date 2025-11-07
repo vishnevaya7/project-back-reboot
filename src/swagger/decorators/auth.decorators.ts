@@ -1,25 +1,34 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
-import { LoginUserDto } from '../../user/dto/login-user.dto';
-import { LoginResponseSchema, ProfileResponseSchema, AdminDataResponseSchema } from '../schemas/auth.schemas';
+import { 
+  RegisterRequest, 
+  LoginRequest, 
+  AuthResponse, 
+  ProfileResponse, 
+  AdminDataResponse,
+  RegisterResponse
+} from '../dto/auth.dto';
 import { ApiAuth, ApiCommonResponses, ApiAuthResponses, ApiAdminResponses } from './common.decorators';
 
 export const ApiRegister = () => applyDecorators(
   ApiOperation({ summary: 'Регистрация нового пользователя' }),
-  ApiBody({ type: CreateUserDto }),
-  ApiResponse({ status: 201, description: 'Пользователь успешно зарегистрирован' }),
+  ApiBody({ type: RegisterRequest }),
+  ApiResponse({ 
+    status: 201, 
+    description: 'Пользователь успешно зарегистрирован',
+    type: RegisterResponse
+  }),
   ApiResponse({ status: 409, description: 'Пользователь уже существует' }),
   ApiCommonResponses()
 );
 
 export const ApiLogin = () => applyDecorators(
   ApiOperation({ summary: 'Вход в систему' }),
-  ApiBody({ type: LoginUserDto }),
+  ApiBody({ type: LoginRequest }),
   ApiResponse({
     status: 200,
     description: 'Успешная авторизация',
-    type: LoginResponseSchema
+    type: AuthResponse
   }),
   ApiResponse({ status: 401, description: 'Неверные учетные данные' }),
   ApiCommonResponses()
@@ -31,7 +40,7 @@ export const ApiGetProfile = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Профиль пользователя',
-    type: ProfileResponseSchema
+    type: ProfileResponse
   }),
   ApiAuthResponses()
 );
@@ -42,7 +51,7 @@ export const ApiGetAdminData = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Данные для админов',
-    type: AdminDataResponseSchema
+    type: AdminDataResponse
   }),
   ApiAdminResponses()
 );

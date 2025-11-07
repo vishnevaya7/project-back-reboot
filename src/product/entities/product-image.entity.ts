@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Product } from './product.entity';
 
 @Entity('product_image')
 export class ProductImage {
@@ -21,7 +22,6 @@ export class ProductImage {
 
     @ApiProperty({ description: 'Порядок отображения изображения', example: 1 })
     @Column({ default: 0 })
-
     sortOrder: number;
 
     @ApiProperty({ description: 'Главное изображение товара', example: true })
@@ -32,8 +32,8 @@ export class ProductImage {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
-    // Связь с товаром (используем строковую ссылку для избежания циклической зависимости)
-    @ManyToOne('Product', 'images', { onDelete: 'CASCADE' })
+    // Связь с товаром
+    @ManyToOne(() => Product, product => product.images, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'productId' })
-    product: any;
+    product: Product;
 }

@@ -5,8 +5,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { UserRole } from '../user/entities/user.entity';
-import { CreateUserDto } from "../user/dto/create-user.dto";
-import { LoginUserDto } from "../user/dto/login-user.dto";
+import { 
+  RegisterRequest, 
+  LoginRequest, 
+  AuthResponse, 
+  ProfileResponse, 
+  AdminDataResponse,
+  RegisterResponse 
+} from "../swagger/dto";
 import { 
   ApiRegister, 
   ApiLogin, 
@@ -21,16 +27,16 @@ export class AuthController {
 
   @Post('register')
   @ApiRegister()
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  async register(@Body() registerRequest: RegisterRequest): Promise<RegisterResponse> {
+    return this.authService.register(registerRequest);
   }
 
   @Post('login')
   @ApiLogin()
-  async login(@Body() loginUserDto: LoginUserDto) {
+  async login(@Body() loginRequest: LoginRequest): Promise<AuthResponse> {
     const user = await this.authService.validateUser(
-      loginUserDto.email,
-      loginUserDto.password,
+      loginRequest.email,
+      loginRequest.password,
     );
     return this.authService.login(user);
   }
@@ -38,7 +44,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   @ApiGetProfile()
-  getProfile(@Req() req) {
+  getProfile(@Req() req): ProfileResponse {
     return {
       message: 'Профиль пользователя',
       user: req.user,
@@ -49,7 +55,7 @@ export class AuthController {
   @Roles(UserRole.ADMIN)
   @Get('admin')
   @ApiGetAdminData()
-  getAdminData(@Req() req) {
+  getAdminData(@Req() req): AdminDataResponse {
     return {
       message: 'Данные только для админов',
       user: req.user,

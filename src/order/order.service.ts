@@ -5,7 +5,13 @@ import {Repository} from "typeorm";
 import {Order, OrderStatus, PaymentStatus} from "./entities/order.entity";
 import {ProductOrder} from "./entities/product-order.entity";
 import {Product} from "../product/entities/product.entity";
-import {CreateOrderDto} from "./dto/create-order.dto";
+import {
+    CreateOrderRequest,
+    CreateOrderResponse,
+    OrderResponse,
+    OrderListResponse,
+    OrderItemResponse
+} from "../swagger/dto";
 
 @Injectable()
 export class OrderService {
@@ -18,7 +24,7 @@ export class OrderService {
         private readonly productRepository: Repository<Product>,
     ) {}
 
-    async getOrderById(id: number): Promise<Order> {
+    async getOrderById(id: number): Promise<OrderResponse> {
         const order = await this.orderRepository.findOne({
             where: { id },
             relations: ['user', 'productOrders.product']
@@ -28,17 +34,28 @@ export class OrderService {
             throw new NotFoundException(`Заказ с ID ${id} не найден`);
         }
 
-        return order;
+        return this.transformOrderToResponse(order);
     }
 
-    async getOrders(): Promise<Order[]> {
-        return this.orderRepository.find({
+    async getOrders(): Promise<OrderListResponse> {
+        const orders = await this.orderRepository.find({
             relations: ['user', 'productOrders.product']
         });
+
+        return {
+            orders: orders.map(order => ({
+                id: order.id,
+                orderNumber: order.orderNumber,
+                totalAmount: order.totalAmount,
+                status: order.status,
+                paymentStatus: order.paymentStatus,
+                createdAt: order.createdAt.toISOString()
+            }))
+        };
     }
 
-    async createOrder(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
-        const { items, shippingAddress, paymentMethod, comment } = createOrderDto;
+    async createOrder(createOrderRequest: CreateOrderRequest, userId: number): Promise<CreateOrderResponse> {
+        const { items, shippingAddress, paymentMethod, comment } = createOrderRequest;
 
         // Проверяем существование всех товаров и их наличие
         const productIds = items.map(item => item.productId);
@@ -111,8 +128,45 @@ export class OrderService {
             await this.productRepository.save(product);
         }
 
-        // Возвращаем заказ с полной информацией
-        return this.getOrderById(savedOrder.id);
+        // Получаем полную информацию о заказе
+        const fullOrder = await this.orderRepository.findOne({
+            where: { id: savedOrder.id },
+            relations: ['user', 'productOrders.product']
+        });
+
+        if (!fullOrder) {
+            throw new NotFoundException('Ошибка при создании заказа');
+        }
+
+        return {
+            message: 'Заказ успешно создан',
+            order: this.transformOrderToResponse(fullOrder)
+        };
+    }
+
+    private transformOrderToResponse(order: Order): OrderResponse {
+        const items: OrderItemResponse[] = order.productOrders?.map(po => ({
+            productId: po.product.id,
+            productName: po.product.name,
+            count: po.count,
+            unitPrice: po.product.price,
+            totalPrice: po.product.price * po.count
+        })) || [];
+
+        return {
+            id: order.id,
+            orderNumber: order.orderNumber,
+            userId: order.userId,
+            items,
+            totalAmount: order.totalAmount,
+            shippingAddress: order.shippingAddress,
+            paymentMethod: order.paymentMethod,
+            comment: order.comment,
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            createdAt: order.createdAt.toISOString(),
+            updatedAt: order.createdAt.toISOString() // Пока используем createdAt
+        };
     }
 
     private async generateOrderNumber(): Promise<string> {

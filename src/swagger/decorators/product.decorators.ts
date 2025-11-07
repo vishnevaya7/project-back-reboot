@@ -1,8 +1,13 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
-import { Product } from '../../product/entities/product.entity';
-import { CreateProductDto } from '../../product/dto/create-product.dto';
-import { UpdateProductDto } from '../../product/dto/update-product.dto';
+import { 
+  CreateProductRequest, 
+  UpdateProductRequest, 
+  ProductResponse, 
+  ProductListResponse,
+  DeleteProductResponse,
+  ProductNotFoundResponse
+} from '../dto/product.dto';
 import { ApiAdminEndpoint, ApiCommonResponses } from './common.decorators';
 
 export const ApiGetProduct = () => applyDecorators(
@@ -11,9 +16,13 @@ export const ApiGetProduct = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Товар найден',
-    type: Product
+    type: ProductResponse
   }),
-  ApiResponse({ status: 404, description: 'Товар не найден' }),
+  ApiResponse({ 
+    status: 404, 
+    description: 'Товар не найден',
+    type: ProductNotFoundResponse
+  }),
   ApiCommonResponses()
 );
 
@@ -22,7 +31,7 @@ export const ApiGetProducts = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Список товаров',
-    type: [Product]
+    type: ProductListResponse
   }),
   ApiCommonResponses()
 );
@@ -34,7 +43,7 @@ export const ApiCreateProduct = () => applyDecorators(
     description: 'Создание нового товара. Доступно только администраторам.'
   }),
   ApiBody({
-    type: CreateProductDto,
+    type: CreateProductRequest,
     description: 'Данные для создания товара',
     examples: {
       example1: {
@@ -51,7 +60,7 @@ export const ApiCreateProduct = () => applyDecorators(
   ApiResponse({
     status: 201,
     description: 'Товар успешно создан',
-    type: Product
+    type: ProductResponse
   })
 );
 
@@ -63,7 +72,7 @@ export const ApiUpdateProduct = () => applyDecorators(
   }),
   ApiParam({ name: 'id', description: 'ID товара для обновления', type: 'number', example: 1 }),
   ApiBody({
-    type: UpdateProductDto,
+    type: UpdateProductRequest,
     description: 'Данные для обновления товара (все поля опциональны)',
     examples: {
       updatePrice: {
@@ -93,9 +102,13 @@ export const ApiUpdateProduct = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Товар успешно обновлен',
-    type: Product
+    type: ProductResponse
   }),
-  ApiResponse({ status: 404, description: 'Товар не найден' })
+  ApiResponse({ 
+    status: 404, 
+    description: 'Товар не найден',
+    type: ProductNotFoundResponse
+  })
 );
 
 export const ApiDeleteProduct = () => applyDecorators(
@@ -108,12 +121,11 @@ export const ApiDeleteProduct = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Товар успешно удален',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Товар "iPhone 15" успешно удален' }
-      }
-    }
+    type: DeleteProductResponse
   }),
-  ApiResponse({ status: 404, description: 'Товар не найден' })
+  ApiResponse({ 
+    status: 404, 
+    description: 'Товар не найден',
+    type: ProductNotFoundResponse
+  })
 );

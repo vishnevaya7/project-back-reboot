@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {User, UserRole} from "./entities/user.entity";
 import * as bcrypt from 'bcryptjs'
-import {CreateUserDto} from "./dto/create-user.dto";
+import {CreateUserRequest} from "../swagger/dto";
 
 @Injectable()
 export class UserService {
@@ -13,9 +13,9 @@ export class UserService {
     ) {
     }
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(createUserRequest: CreateUserRequest): Promise<User> {
         try {
-            const { username, email, password } = createUserDto;
+            const { username, email, password, role } = createUserRequest;
             const existingUser = await this.userRepository.findOne({
                 where: { email }
             });
@@ -26,11 +26,15 @@ export class UserService {
             const saltRounds = 10;
             const passwordHash = await bcrypt.hash(password, saltRounds);
 
+            // Преобразуем строку роли в enum
+            const userRole = role === 'admin' ? UserRole.ADMIN : UserRole.USER;
+
             const user = this.userRepository.create({
                 username,
                 email,
                 passwordHash,
                 isActive: true,
+                role: userRole,
             });
 
             return await this.userRepository.save(user);
@@ -38,7 +42,7 @@ export class UserService {
             if (error instanceof ConflictException) {
                 throw error;
             }
-            throw new InternalServerErrorException('Такого пользователя не существует ' + error);
+            throw new InternalServerErrorException('Ошибка при создании пользователя: ' + error);
         }
     }
 

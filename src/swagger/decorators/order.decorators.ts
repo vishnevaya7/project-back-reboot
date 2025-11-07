@@ -1,17 +1,22 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
-import { CreateOrderDto } from '../../order/dto/create-order.dto';
-import { CreateOrderResponseSchema, OrderListItemSchema } from '../schemas/order.schemas';
+import { 
+  CreateOrderRequest, 
+  CreateOrderResponse, 
+  OrderResponse, 
+  OrderListResponse,
+  OrderNotFoundResponse
+} from '../dto/order.dto';
 import { ApiAuth, ApiAuthResponses } from './common.decorators';
 
 export const ApiCreateOrder = () => applyDecorators(
   ApiAuth(),
   ApiOperation({ summary: 'Создать новый заказ' }),
-  ApiBody({ type: CreateOrderDto }),
+  ApiBody({ type: CreateOrderRequest }),
   ApiResponse({
     status: 201,
     description: 'Заказ успешно создан',
-    type: CreateOrderResponseSchema
+    type: CreateOrderResponse
   }),
   ApiResponse({ status: 404, description: 'Товар не найден' }),
   ApiAuthResponses()
@@ -23,9 +28,13 @@ export const ApiGetOrderById = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Заказ найден',
-    type: OrderListItemSchema
+    type: OrderResponse
   }),
-  ApiResponse({ status: 404, description: 'Заказ не найден' })
+  ApiResponse({ 
+    status: 404, 
+    description: 'Заказ не найден',
+    type: OrderNotFoundResponse
+  })
 );
 
 export const ApiGetAllOrders = () => applyDecorators(
@@ -33,6 +42,6 @@ export const ApiGetAllOrders = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Список заказов',
-    type: [OrderListItemSchema]
+    type: OrderListResponse
   })
 );
