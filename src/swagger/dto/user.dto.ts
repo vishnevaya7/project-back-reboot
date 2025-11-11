@@ -1,5 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum, IsOptional } from 'class-validator';
+import {
+    IsEmail,
+    IsNotEmpty,
+    IsString,
+    MinLength,
+    IsEnum,
+    IsOptional,
+    IsBoolean,
+    IsArray,
+    IsNumber
+} from 'class-validator';
+import {UserRole} from "../../user/entities/user.entity";
+import {Transform, Type} from "class-transformer";
 
 // Request DTOs
 export class CreateUserRequest {
@@ -188,3 +200,85 @@ export class UserNotFoundResponse {
   })
   statusCode: number;
 }
+
+export class GetUserPredicate {
+    @ApiProperty({
+        example: ['user@example.com', 'admin@example.com'],
+        description: 'Массив email адресов для точного поиска',
+        required: false,
+        type: [String]
+    })
+    @IsOptional()
+    @IsArray()
+    @IsEmail({}, { each: true, message: 'Каждый email должен быть корректным' })
+    emails?: string[];
+
+    @ApiProperty({
+        example: 'user@',
+        description: 'Частичное совпадение email (LIKE поиск)',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    emailLike?: string;
+
+    @ApiProperty({
+        example: [1, 2, 3],
+        description: 'Массив ID пользователей для поиска',
+        required: false,
+        type: [Number]
+    })
+    @IsOptional()
+    @IsArray()
+    @Type(() => Number)
+    @IsNumber({}, { each: true, message: 'Каждый ID должен быть числом' })
+    ids?: number[];
+
+    @ApiProperty({
+        example: ['user', 'admin'],
+        description: 'Массив ролей для фильтрации',
+        required: false,
+        enum: ['user', 'admin'],
+        isArray: true
+    })
+    @IsOptional()
+    @IsArray()
+    @IsEnum(['user', 'admin'], { each: true, message: 'Недопустимая роль' })
+    roles?: string[];
+
+    @ApiProperty({
+        example: ['john_doe', 'admin_user'],
+        description: 'Массив username для точного поиска',
+        required: false,
+        type: [String]
+    })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true, message: 'Каждый username должен быть строкой' })
+    usernames?: string[];
+
+    @ApiProperty({
+        example: 'john',
+        description: 'Частичное совпадение username (LIKE поиск)',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    usernameLike?: string;
+
+    @ApiProperty({
+        example: true,
+        description: 'Фильтр по активности пользователя',
+        required: false
+    })
+    @IsOptional()
+    @Transform(({ value }) => {
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        return value;
+    })
+    @IsBoolean({ message: 'isActive должно быть boolean значением' })
+    isActive?: boolean;
+}
+
+

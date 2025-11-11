@@ -23,11 +23,14 @@ async function bootstrap() {
   });
 
   // Глобальная валидация
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+    app.useGlobalPipes(new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: {
+            enableImplicitConversion: true,
+        },
+    }));
 
   // Настройка Swagger через централизованную конфигурацию
   SwaggerConfig.setup(app);
