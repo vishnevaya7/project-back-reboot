@@ -169,9 +169,26 @@ export class ProductDetailResponse {
 }
 
 export class ProductListResponse {
-  @ApiProperty({
-    type: [ProductListItemResponse],
-    description: 'Список товаров'
-  })
-  products: ProductListItemResponse[];
+    @ApiProperty({
+        type: [ProductListItemResponse],
+        description: 'Список товаров'
+    })
+    products: ProductListItemResponse[];
 }
+
+export class ProductNotFoundResponse {
+    @ApiProperty({
+        example: 'Товар не найден',
+        description: 'Сообщение об ошибке'
+    })
+    message: string;
+
+    @ApiProperty({
+        example: 404,
+        description: 'Код ошибки'
+    })
+    statusCode: number;
+}
+
+// Алиас для обратной совместимости
+export class ProductResponse extends ProductDetailResponse {}

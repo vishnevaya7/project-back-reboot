@@ -5,6 +5,7 @@ import {
   UpdateProductRequest, 
   ProductResponse, 
   ProductListResponse,
+    ProductDetailResponse,
   DeleteProductResponse,
   ProductNotFoundResponse
 } from '../dto/product.dto';
@@ -16,7 +17,7 @@ export const ApiGetProduct = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Товар найден',
-    type: ProductResponse
+    type: ProductDetailResponse
   }),
   ApiResponse({ 
     status: 404, 
@@ -60,7 +61,7 @@ export const ApiCreateProduct = () => applyDecorators(
   ApiResponse({
     status: 201,
     description: 'Товар успешно создан',
-    type: ProductResponse
+    type: ProductDetailResponse
   })
 );
 
@@ -102,7 +103,7 @@ export const ApiUpdateProduct = () => applyDecorators(
   ApiResponse({
     status: 200,
     description: 'Товар успешно обновлен',
-    type: ProductResponse
+    type: ProductDetailResponse
   }),
   ApiResponse({ 
     status: 404, 

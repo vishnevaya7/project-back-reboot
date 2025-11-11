@@ -8,9 +8,9 @@ import {Product} from "../product/entities/product.entity";
 import {
     CreateOrderRequest,
     CreateOrderResponse,
-    OrderResponse,
+    OrderDetailResponse,
     OrderListResponse,
-    OrderItemResponse
+    OrderItemDetailResponse
 } from "../swagger/dto";
 
 @Injectable()
@@ -24,7 +24,7 @@ export class OrderService {
         private readonly productRepository: Repository<Product>,
     ) {}
 
-    async getOrderById(id: number): Promise<OrderResponse> {
+    async getOrderById(id: number): Promise<OrderDetailResponse> {
         const order = await this.orderRepository.findOne({
             where: { id },
             relations: ['user', 'productOrders.product']
@@ -49,8 +49,10 @@ export class OrderService {
                 totalAmount: order.totalAmount,
                 status: order.status,
                 paymentStatus: order.paymentStatus,
-                createdAt: order.createdAt.toISOString()
-            }))
+                createdAt: order.createdAt.toISOString(),
+                itemsCount: order.productOrders?.length || 0
+            })),
+            total: orders.length
         };
     }
 
@@ -144,8 +146,8 @@ export class OrderService {
         };
     }
 
-    private transformOrderToResponse(order: Order): OrderResponse {
-        const items: OrderItemResponse[] = order.productOrders?.map(po => ({
+    private transformOrderToResponse(order: Order): OrderDetailResponse  {
+        const items: OrderItemDetailResponse[] = order.productOrders?.map(po => ({
             productId: po.product.id,
             productName: po.product.name,
             count: po.count,
@@ -157,6 +159,7 @@ export class OrderService {
             id: order.id,
             orderNumber: order.orderNumber,
             userId: order.userId,
+            username: order.user?.username || 'Unknown',
             items,
             totalAmount: order.totalAmount,
             shippingAddress: order.shippingAddress,
