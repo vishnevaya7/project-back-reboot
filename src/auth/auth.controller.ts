@@ -81,7 +81,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Не авторизован' })
     @ApiResponse({ status: 403, description: 'Недостаточно прав доступа' })
     async getUsers(@Query() req: Pageable & GetUserPredicate): Promise<Page<UserListItemResponse>> {
-        // Разделение параметров внутри метода с явной трансформацией в числа
+
         const pageable: Pageable = {
             page: req.page ? Number(req.page) : 1,
             size: req.size ? Number(req.size) : 10,

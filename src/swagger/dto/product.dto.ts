@@ -190,11 +190,10 @@ export class ProductNotFoundResponse {
     statusCode: number;
 }
 
-// Алиас для обратной совместимости
 export class ProductResponse extends ProductDetailResponse {}
 
 export class GetProductPredicate {
-    id?: number[];
+    ids?: number[];
 
     name?: string[];
 

@@ -1,7 +1,6 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
 import {Product} from "./entities/product.entity";
-import {And, Equal, FindOperator, ILike, In, LessThanOrEqual, Or, Repository} from "typeorm";
+import {And, FindOperator, ILike, In, LessThanOrEqual, Or} from "typeorm";
 import {
     CreateProductRequest,
     UpdateProductRequest,
@@ -37,7 +36,7 @@ export class ProductService {
 
         const whereConditions: any = {};
         if(predicate) {
-            if(predicate.id && predicate.id.length > 0) whereConditions.id = In(predicate.id);
+            if(predicate.ids && predicate.ids.length > 0) whereConditions.id = In(predicate.ids);
 
             const nameConditions: FindOperator<any>[] = [];
             if(predicate.name && predicate.name.length > 0) {
@@ -156,7 +155,6 @@ export class ProductService {
             throw new NotFoundException(`Товар с ID ${id} не найден`);
         }
 
-        // Обновляем только переданные поля
         Object.assign(product, updateProductRequest);
         
         const updatedProduct = await this.productRepository.save(product);
@@ -197,7 +195,6 @@ export class ProductService {
     }
 
     private transformProductToListItemResponse(product: Product): ProductListItemResponse {
-        // Находим главное изображение
         const mainImage = product.images?.find(img => img.isMain) || product.images?.[0];
         
         return {
