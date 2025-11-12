@@ -192,3 +192,33 @@ export class ProductNotFoundResponse {
 
 // Алиас для обратной совместимости
 export class ProductResponse extends ProductDetailResponse {}
+
+export class GetProductPredicate {
+    id?: number[];
+
+    name?: string[];
+
+    nameLike?: string;
+
+    description?: string[];
+
+    descriptionContains?: string;
+
+    priceFrom?: number;
+
+    priceTo?: number;
+
+    count?: number[];
+
+    countFrom?: number;
+
+    countTo?: number;
+
+    createdFrom?: Date;
+
+    createdTo?: Date;
+    updatedFrom?: Date;
+    updatedTo?: Date;
+
+
+}

@@ -34,3 +34,5 @@ export class Pageable {
     @IsString()
     sort?: string;
 }
+
+//TODO создать класс, который наследуется от Repository и внедрить class Pageable и WhereCondition,
